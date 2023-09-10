@@ -167,6 +167,6 @@ func GetPosts(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"post": response,
+		"posts": response,
 	})
 }

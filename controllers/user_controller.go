@@ -115,8 +115,10 @@ func GetDetailUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status": "success",
 		"data": gin.H{
-			"full_name": User.Full_Name,
-			"username":  User.Username,
+			"id":              User.ID,
+			"full_name":       User.Full_Name,
+			"username":        User.Username,
+			"profile_picture": User.Profile_Picture,
 		},
 	})
 }
