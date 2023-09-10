@@ -12,6 +12,7 @@ type Likes struct {
 	UserID    uint  `gorm:"not null" json:"user_id" valid:"required"`
 	PostID    *uint `gorm:"null" json:"post_id"`
 	CommentID *uint `gorm:"null" json:"comment_id"`
+	User      *User
 }
 
 func (l *Likes) BeforeCreate(g *gorm.DB) (err error) {

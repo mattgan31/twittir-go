@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
+	"gorm.io/gorm"
 )
 
 type FormatPosts struct {
@@ -16,6 +17,7 @@ type FormatPosts struct {
 	Post       string    `json:"post"`
 	Created_At time.Time `json:"created_at"`
 	User       FormatUsers
+	Likes      []FormatLikes
 	Comment    []FormatComments
 }
 
@@ -24,11 +26,17 @@ type FormatComments struct {
 	Description string    `json:"description"`
 	Created_At  time.Time `json:"created_at"`
 	User        FormatUsers
+	Likes       []FormatLikes
 }
 
 type FormatUsers struct {
 	ID       uint   `json:"id"`
 	Username string `json:"username"`
+}
+
+type FormatLikes struct {
+	ID   uint `json:"id"`
+	User FormatUsers
 }
 
 func CreatePost(c *gin.Context) {
@@ -73,13 +81,16 @@ func CreatePost(c *gin.Context) {
 func GetPosts(c *gin.Context) {
 	db := database.GetDB()
 
-	Post := []models.Post{}
+	var posts []models.Post
 
 	if err := db.Debug().
 		Preload("User").
-		Preload("Comment").
-		Preload("Comment.User").
-		Find(&Post).Error; err != nil {
+		Preload("Likes").
+		Preload("Likes.User").
+		Preload("Comment", func(db *gorm.DB) *gorm.DB {
+			return db.Preload("User").Preload("Likes").Preload("Likes.User")
+		}).
+		Find(&posts).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
 			"message": err.Error(),
@@ -87,9 +98,9 @@ func GetPosts(c *gin.Context) {
 		return
 	}
 
-	response := make([]FormatPosts, len(Post))
+	response := make([]FormatPosts, len(posts))
 
-	for i, post := range Post {
+	for i, post := range posts {
 		formattedPost := FormatPosts{
 			ID:         post.ID,
 			Post:       post.Post,
@@ -99,6 +110,23 @@ func GetPosts(c *gin.Context) {
 			ID:       post.User.ID,
 			Username: post.User.Username,
 		}
+
+		// Format likes for the post
+		likes := make([]FormatLikes, len(post.Likes))
+		for k, like := range post.Likes {
+			likesResponse := FormatLikes{
+				ID: like.ID,
+			}
+
+			likesResponse.User = FormatUsers{
+				ID:       like.User.ID,
+				Username: like.User.Username,
+			}
+
+			likes[k] = likesResponse
+		}
+
+		formattedPost.Likes = likes
 
 		// Format comments for the post
 		comments := make([]FormatComments, len(post.Comment))
@@ -113,6 +141,23 @@ func GetPosts(c *gin.Context) {
 				ID:       comment.User.ID,
 				Username: comment.User.Username,
 			}
+
+			// Format likes for the comment
+			commentLikes := make([]FormatLikes, len(comment.Likes))
+			for k, like := range comment.Likes {
+				commentlike := FormatLikes{
+					ID: like.ID,
+				}
+
+				commentlike.User = FormatUsers{
+					ID:       like.User.ID,
+					Username: like.User.Username,
+				}
+
+				commentLikes[k] = commentlike
+			}
+
+			commentResponse.Likes = commentLikes
 
 			comments[j] = commentResponse
 		}
