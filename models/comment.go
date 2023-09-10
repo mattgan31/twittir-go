@@ -13,7 +13,7 @@ type Comment struct {
 	PostID      uint    `gorm:"not null" json:"post_id" valid:"required"`
 	Description string  `gorm:"not null" json:"description" valid:"required~Description Comment is required"`
 	Likes       []Likes `gorm:"foreignKey:CommentID"`
-	User        User
+	User        *User
 }
 
 func (c *Comment) BeforeCreate(g *gorm.DB) (err error) {
