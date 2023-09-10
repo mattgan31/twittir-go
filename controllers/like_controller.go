@@ -15,7 +15,6 @@ import (
 
 func CreateLikePost(c *gin.Context) {
 	db := database.GetDB()
-	contentType := helpers.GetContentType(c)
 	Likes := models.Likes{}
 
 	userData := c.MustGet("userData").(jwt.MapClaims)
@@ -29,12 +28,6 @@ func CreateLikePost(c *gin.Context) {
 	}
 
 	postIDUint := uint(postID)
-
-	if contentType == appJSON {
-		c.ShouldBindJSON(&Likes)
-	} else {
-		c.ShouldBind(&Likes)
-	}
 
 	Likes.Created_At = time.Now()
 	Likes.Updated_At = time.Now()
