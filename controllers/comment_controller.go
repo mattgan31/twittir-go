@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 	"twittir-go/database"
 	"twittir-go/helpers"
@@ -18,6 +19,14 @@ func CreateComment(c *gin.Context) {
 	userData := c.MustGet("userData").(jwt.MapClaims)
 	userID := uint(userData["id"].(float64))
 
+	postIDStr := c.Param("id")
+	postID, err := strconv.ParseUint(postIDStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid PostID"})
+		return
+	}
+
+	postIDUint := uint(postID)
 	Comment := models.Comment{}
 
 	if contentType == appJSON {
@@ -29,8 +38,9 @@ func CreateComment(c *gin.Context) {
 	Comment.Created_At = time.Now()
 	Comment.Updated_At = time.Now()
 	Comment.UserID = userID
+	Comment.PostID = postIDUint
 
-	err := db.Debug().Create(&Comment).Error
+	err = db.Debug().Create(&Comment).Error
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
