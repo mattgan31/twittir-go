@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 	"twittir-go/database"
 	"twittir-go/helpers"
@@ -90,6 +91,206 @@ func GetPosts(c *gin.Context) {
 		Preload("Comment", func(db *gorm.DB) *gorm.DB {
 			return db.Preload("User").Preload("Likes").Preload("Likes.User")
 		}).
+		Find(&posts).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	response := make([]FormatPosts, len(posts))
+
+	for i, post := range posts {
+		formattedPost := FormatPosts{
+			ID:         post.ID,
+			Post:       post.Post,
+			Created_At: post.Created_At,
+		}
+		formattedPost.User = FormatUsers{
+			ID:       post.User.ID,
+			Username: post.User.Username,
+		}
+
+		// Format likes for the post
+		likes := make([]FormatLikes, len(post.Likes))
+		for k, like := range post.Likes {
+			likesResponse := FormatLikes{
+				ID: like.ID,
+			}
+
+			likesResponse.User = FormatUsers{
+				ID:       like.User.ID,
+				Username: like.User.Username,
+			}
+
+			likes[k] = likesResponse
+		}
+
+		formattedPost.Likes = likes
+
+		// Format comments for the post
+		comments := make([]FormatComments, len(post.Comment))
+		for j, comment := range post.Comment {
+			commentResponse := FormatComments{
+				ID:          comment.ID,
+				Description: comment.Description,
+				Created_At:  comment.Created_At,
+			}
+
+			commentResponse.User = FormatUsers{
+				ID:       comment.User.ID,
+				Username: comment.User.Username,
+			}
+
+			// Format likes for the comment
+			commentLikes := make([]FormatLikes, len(comment.Likes))
+			for k, like := range comment.Likes {
+				commentlike := FormatLikes{
+					ID: like.ID,
+				}
+
+				commentlike.User = FormatUsers{
+					ID:       like.User.ID,
+					Username: like.User.Username,
+				}
+
+				commentLikes[k] = commentlike
+			}
+
+			commentResponse.Likes = commentLikes
+
+			comments[j] = commentResponse
+		}
+		formattedPost.Comment = comments
+
+		response[i] = formattedPost
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"posts": response,
+	})
+}
+
+func GetPostByID(c *gin.Context) {
+	db := database.GetDB()
+
+	postIDStr := c.Param("id")
+	postID, err := strconv.ParseUint(postIDStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid PostID"})
+		return
+	}
+
+	postIDUint := uint(postID)
+
+	var post models.Post
+
+	if err := db.Debug().
+		Preload("User").
+		Preload("Likes").
+		Preload("Likes.User").
+		Preload("Comment", func(db *gorm.DB) *gorm.DB {
+			return db.Preload("User").Preload("Likes").Preload("Likes.User")
+		}).
+		Where("id=?", postIDUint).
+		Find(&post).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	formattedPost := FormatPosts{
+		ID:         post.ID,
+		Post:       post.Post,
+		Created_At: post.Created_At,
+	}
+	formattedPost.User = FormatUsers{
+		ID:       post.User.ID,
+		Username: post.User.Username,
+	}
+
+	// Format likes for the post
+	likes := make([]FormatLikes, len(post.Likes))
+	for k, like := range post.Likes {
+		likesResponse := FormatLikes{
+			ID: like.ID,
+		}
+
+		likesResponse.User = FormatUsers{
+			ID:       like.User.ID,
+			Username: like.User.Username,
+		}
+
+		likes[k] = likesResponse
+	}
+
+	formattedPost.Likes = likes
+
+	// Format comments for the post
+	comments := make([]FormatComments, len(post.Comment))
+	for j, comment := range post.Comment {
+		commentResponse := FormatComments{
+			ID:          comment.ID,
+			Description: comment.Description,
+			Created_At:  comment.Created_At,
+		}
+
+		commentResponse.User = FormatUsers{
+			ID:       comment.User.ID,
+			Username: comment.User.Username,
+		}
+
+		// Format likes for the comment
+		commentLikes := make([]FormatLikes, len(comment.Likes))
+		for k, like := range comment.Likes {
+			commentlike := FormatLikes{
+				ID: like.ID,
+			}
+
+			commentlike.User = FormatUsers{
+				ID:       like.User.ID,
+				Username: like.User.Username,
+			}
+
+			commentLikes[k] = commentlike
+		}
+
+		commentResponse.Likes = commentLikes
+
+		comments[j] = commentResponse
+	}
+	formattedPost.Comment = comments
+
+	c.JSON(http.StatusOK, gin.H{
+		"posts": formattedPost,
+	})
+}
+
+func GetPostByUserID(c *gin.Context) {
+	db := database.GetDB()
+
+	userIDStr := c.Param("id")
+	userID, err := strconv.ParseUint(userIDStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UserID"})
+		return
+	}
+
+	userIDUint := uint(userID)
+
+	var posts []models.Post
+
+	if err := db.Debug().
+		Preload("User").
+		Preload("Likes").
+		Preload("Likes.User").
+		Preload("Comment", func(db *gorm.DB) *gorm.DB {
+			return db.Preload("User").Preload("Likes").Preload("Likes.User")
+		}).
+		Where("user_id=?", userIDUint).
 		Find(&posts).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
