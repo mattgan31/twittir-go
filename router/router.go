@@ -29,13 +29,15 @@ func StartServer() *gin.Engine {
 		// Post
 		apiRouter.POST("/posts", middleware.Authentication(), controllers.CreatePost)
 		apiRouter.GET("/posts", middleware.Authentication(), controllers.GetPosts)
+		apiRouter.GET("/posts/:id", middleware.Authentication(), controllers.GetPostByID)
+		apiRouter.GET("/posts/user/:id", middleware.Authentication(), controllers.GetPostByUserID)
 
 		// Comment post
 		apiRouter.POST("/posts/:id/comment", middleware.Authentication(), controllers.CreateComment)
 
 		// Like Post
 		apiRouter.POST("/posts/:id/like", middleware.Authentication(), controllers.CreateLikePost)
-		apiRouter.POST("/posts/:id/comment/like", middleware.Authentication(), controllers.CreateLikeComment)
+		apiRouter.POST("/comments/:id/like", middleware.Authentication(), controllers.CreateLikeComment)
 
 		// Relationship / Follow
 		apiRouter.POST("/users/:id/follow", middleware.Authentication(), controllers.FollowUser)
