@@ -113,12 +113,41 @@ func GetDetailUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"status": "success",
-		"data": gin.H{
-			"id":              User.ID,
-			"full_name":       User.Full_Name,
-			"username":        User.Username,
-			"profile_picture": User.Profile_Picture,
-		},
+		"id":              User.ID,
+		"full_name":       User.Full_Name,
+		"username":        User.Username,
+		"profile_picture": User.Profile_Picture,
+	})
+}
+
+func SearchUser(c *gin.Context) {
+	db := database.GetDB()
+
+	usernameParam := c.DefaultQuery("username", "")
+
+	var User []models.User
+
+	err := db.Debug().Where("username like ?", usernameParam+"%").Find(&User).Error
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	response := make([]FormatUsers, len(User))
+
+	for i, user := range User {
+		formattedUsers := FormatUsers{
+			ID:       user.ID,
+			Username: user.Username,
+		}
+
+		response[i] = formattedUsers
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"users": response,
 	})
 }
