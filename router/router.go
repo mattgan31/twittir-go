@@ -25,6 +25,7 @@ func StartServer() *gin.Engine {
 		apiRouter.POST("/register", controllers.UserRegister)
 		apiRouter.POST("/login", controllers.UserLogin)
 		apiRouter.GET("/users/profile", middleware.Authentication(), controllers.GetDetailUser)
+		apiRouter.GET("/search", middleware.Authentication(), controllers.SearchUser)
 
 		// Post
 		apiRouter.POST("/posts", middleware.Authentication(), controllers.CreatePost)
