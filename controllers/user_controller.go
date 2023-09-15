@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 	"twittir-go/database"
 	"twittir-go/helpers"
@@ -113,10 +114,71 @@ func GetDetailUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"status": "success",
-		"data": gin.H{
-			"full_name": User.Full_Name,
-			"username":  User.Username,
-		},
+		"id":              User.ID,
+		"full_name":       User.Full_Name,
+		"username":        User.Username,
+		"profile_picture": User.Profile_Picture,
+	})
+}
+
+func SearchUser(c *gin.Context) {
+	db := database.GetDB()
+
+	usernameParam := c.DefaultQuery("username", "")
+
+	var User []models.User
+
+	err := db.Debug().Where("username like ?", usernameParam+"%").Find(&User).Error
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	response := make([]FormatUsers, len(User))
+
+	for i, user := range User {
+		formattedUsers := FormatUsers{
+			ID:       user.ID,
+			Username: user.Username,
+		}
+
+		response[i] = formattedUsers
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"users": response,
+	})
+}
+
+func GetUserByID(c *gin.Context) {
+	db := database.GetDB()
+
+	var user models.User
+
+	userIDStr := c.Param("id")
+	userID, err := strconv.ParseUint(userIDStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UserID"})
+		return
+	}
+
+	userIDUint := uint(userID)
+
+	if err := db.Debug().Where("id=?", userIDUint).Take(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"id":              user.ID,
+		"full_name":       user.Full_Name,
+		"username":        user.Username,
+		"profile_picture": user.Profile_Picture,
 	})
 }
