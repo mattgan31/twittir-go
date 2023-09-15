@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 	"twittir-go/database"
 	"twittir-go/helpers"
@@ -149,5 +150,35 @@ func SearchUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"users": response,
+	})
+}
+
+func GetUserByID(c *gin.Context) {
+	db := database.GetDB()
+
+	var user models.User
+
+	userIDStr := c.Param("id")
+	userID, err := strconv.ParseUint(userIDStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UserID"})
+		return
+	}
+
+	userIDUint := uint(userID)
+
+	if err := db.Debug().Where("id=?", userIDUint).Take(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"id":              user.ID,
+		"full_name":       user.Full_Name,
+		"username":        user.Username,
+		"profile_picture": user.Profile_Picture,
 	})
 }
