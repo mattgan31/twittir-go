@@ -52,11 +52,11 @@ func CreateComment(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"comment": gin.H{
-			"id":         Comment.ID,
-			"comment":    Comment.Description,
-			"post_id":    Comment.PostID,
-			"created_at": Comment.Created_At,
-			"user":       Comment.UserID,
+			"id":        Comment.ID,
+			"comment":   Comment.Description,
+			"post_id":   Comment.PostID,
+			"createdAt": Comment.Created_At,
+			"user":      Comment.UserID,
 		},
 	})
 }

@@ -14,20 +14,20 @@ import (
 )
 
 type FormatPosts struct {
-	ID         uint      `json:"id"`
-	Post       string    `json:"post"`
-	Created_At time.Time `json:"created_at"`
-	User       FormatUsers
-	Likes      []FormatLikes
-	Comment    []FormatComments
+	ID         uint             `json:"id"`
+	Post       string           `json:"post"`
+	Created_At time.Time        `json:"createdAt"`
+	User       FormatUsers      `json:"user"`
+	Likes      []FormatLikes    `json:"likes"`
+	Comment    []FormatComments `json:"comments"`
 }
 
 type FormatComments struct {
-	ID          uint      `json:"id"`
-	Description string    `json:"description"`
-	Created_At  time.Time `json:"created_at"`
-	User        FormatUsers
-	Likes       []FormatLikes
+	ID          uint          `json:"id"`
+	Description string        `json:"description"`
+	Created_At  time.Time     `json:"createdAt"`
+	User        FormatUsers   `json:"user"`
+	Likes       []FormatLikes `json:"likes"`
 }
 
 type FormatUsers struct {
@@ -36,8 +36,8 @@ type FormatUsers struct {
 }
 
 type FormatLikes struct {
-	ID   uint `json:"id"`
-	User FormatUsers
+	ID   uint        `json:"id"`
+	User FormatUsers `json:"user"`
 }
 
 func CreatePost(c *gin.Context) {
@@ -71,10 +71,10 @@ func CreatePost(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"post": gin.H{
-			"id":         Post.ID,
-			"post":       Post.Post,
-			"created_at": Post.Created_At,
-			"user_id":    Post.UserID,
+			"id":        Post.ID,
+			"post":      Post.Post,
+			"createdAt": Post.Created_At,
+			"user_id":   Post.UserID,
 		},
 	})
 }
