@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -369,5 +370,48 @@ func GetPostByUserID(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"posts": response,
+	})
+}
+
+func DeletePost(c *gin.Context) {
+	db := database.GetDB()
+
+	var post models.Post
+
+	userData := c.MustGet("userData").(jwt.MapClaims)
+	userID := uint(userData["id"].(float64))
+
+	postIDStr := c.Param("id")
+	postID, err := strconv.ParseUint(postIDStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid PostID"})
+		return
+	}
+
+	postIDUint := uint(postID)
+
+	if err := db.Debug().Where("id=?", postIDUint).
+		Where("user_id=?", userID).
+		First(&post).
+		Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	if err := db.Debug().
+		Delete(&post).
+		Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": fmt.Sprintf("Post with id %d deleted successfully", postIDUint),
 	})
 }
