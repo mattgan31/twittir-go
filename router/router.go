@@ -33,9 +33,11 @@ func StartServer() *gin.Engine {
 		apiRouter.GET("/posts", middleware.Authentication(), controllers.GetPosts)
 		apiRouter.GET("/posts/:id", middleware.Authentication(), controllers.GetPostByID)
 		apiRouter.GET("/posts/user/:id", middleware.Authentication(), controllers.GetPostByUserID)
+		apiRouter.DELETE("/posts/:id", middleware.Authentication(), controllers.DeletePost)
 
 		// Comment post
 		apiRouter.POST("/posts/:id/comment", middleware.Authentication(), controllers.CreateComment)
+		apiRouter.DELETE("/comments/:id", middleware.Authentication(), controllers.DeleteComment)
 
 		// Like Post
 		apiRouter.POST("/posts/:id/like", middleware.Authentication(), controllers.CreateLikePost)
