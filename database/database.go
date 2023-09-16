@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"log"
+	"os"
 	"twittir-go/models"
 
 	"gorm.io/driver/postgres"
@@ -10,11 +11,11 @@ import (
 )
 
 var (
-	host     = "localhost"
-	user     = "postgres"
-	password = "alam"
-	dbport   = "5432"
-	dbname   = "twittir"
+	host     = os.Getenv("PGHOST")
+	user     = os.Getenv("PGUSER")
+	password = os.Getenv("PGPASSWORD")
+	dbport   = os.Getenv("PGPORT")
+	dbname   = os.Getenv("PGDATABASE")
 	db       *gorm.DB
 	err      error
 )
