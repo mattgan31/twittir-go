@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 	"twittir-go/database"
 	"twittir-go/models"
 
@@ -30,8 +29,6 @@ func FollowUser(c *gin.Context) {
 
 	followingIDUint := uint(followingID)
 
-	Relationship.Created_At = time.Now()
-	Relationship.Updated_At = time.Now()
 	Relationship.FollowerID = userID
 	Relationship.FollowingID = followingIDUint
 

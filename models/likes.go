@@ -8,7 +8,7 @@ import (
 )
 
 type Likes struct {
-	GormModel
+	gorm.Model
 	UserID    uint  `gorm:"not null" json:"user_id" valid:"required"`
 	PostID    *uint `gorm:"null" json:"post_id"`
 	CommentID *uint `gorm:"null" json:"comment_id"`

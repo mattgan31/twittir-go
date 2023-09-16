@@ -8,7 +8,7 @@ import (
 )
 
 type Comment struct {
-	GormModel
+	gorm.Model
 	UserID      uint    `gorm:"not null" json:"user_id" valid:"required"`
 	PostID      uint    `gorm:"not null" json:"post_id" valid:"required"`
 	Description string  `gorm:"not null" json:"description" valid:"required~Description Comment is required"`
