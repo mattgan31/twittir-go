@@ -14,6 +14,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// Type for Formatting
 type FormatPosts struct {
 	ID        uint             `json:"id"`
 	Post      string           `json:"post"`
@@ -41,6 +42,67 @@ type FormatLikes struct {
 	User FormatUsers `json:"user"`
 }
 
+// Private Function
+func formatUser(user *models.User) FormatUsers {
+	return FormatUsers{
+		ID:       user.ID,
+		Username: user.Username,
+	}
+}
+
+func formatLikes(likes []models.Likes) []FormatLikes {
+	formattedLikes := make([]FormatLikes, len(likes))
+	for i, like := range likes {
+		formattedLikes[i] = FormatLikes{
+			ID:   like.ID,
+			User: formatUser(like.User),
+		}
+	}
+	return formattedLikes
+}
+
+func formatComments(comments []models.Comment) []FormatComments {
+	formattedComments := make([]FormatComments, len(comments))
+	for i, comment := range comments {
+		formattedComments[i] = FormatComments{
+			ID:          comment.ID,
+			Description: comment.Description,
+			CreatedAt:   comment.CreatedAt,
+			User:        formatUser(comment.User),
+			Likes:       formatLikes(comment.Likes),
+		}
+	}
+	return formattedComments
+}
+
+func formatPosts(posts []models.Post) []FormatPosts {
+	formattedPosts := make([]FormatPosts, len(posts))
+	for i, post := range posts {
+		formattedPosts[i] = FormatPosts{
+			ID:        post.ID,
+			Post:      post.Post,
+			CreatedAt: post.CreatedAt,
+			User:      formatUser(post.User),
+			Likes:     formatLikes(post.Likes),
+			Comment:   formatComments(post.Comment),
+		}
+	}
+	return formattedPosts
+}
+
+func formatOnePost(post models.Post) FormatPosts {
+	formattedPost := FormatPosts{
+		ID:        post.ID,
+		Post:      post.Post,
+		CreatedAt: post.CreatedAt,
+		User:      formatUser(post.User),
+		Likes:     formatLikes(post.Likes),
+		Comment:   formatComments(post.Comment),
+	}
+	return formattedPost
+}
+
+// Function
 func CreatePost(c *gin.Context) {
 	db := database.GetDB()
 	contentType := helpers.GetContentType(c)
@@ -98,73 +160,7 @@ func GetPosts(c *gin.Context) {
 		return
 	}
 
-	response := make([]FormatPosts, len(posts))
-
-	for i, post := range posts {
-		formattedPost := FormatPosts{
-			ID:        post.ID,
-			Post:      post.Post,
-			CreatedAt: post.CreatedAt,
-		}
-		formattedPost.User = FormatUsers{
-			ID:       post.User.ID,
-			Username: post.User.Username,
-		}
-
-		// Format likes for the post
-		likes := make([]FormatLikes, len(post.Likes))
-		for k, like := range post.Likes {
-			likesResponse := FormatLikes{
-				ID: like.ID,
-			}
-
-			likesResponse.User = FormatUsers{
-				ID:       like.User.ID,
-				Username: like.User.Username,
-			}
-
-			likes[k] = likesResponse
-		}
-
-		formattedPost.Likes = likes
-
-		// Format comments for the post
-		comments := make([]FormatComments, len(post.Comment))
-		for j, comment := range post.Comment {
-			commentResponse := FormatComments{
-				ID:          comment.ID,
-				Description: comment.Description,
-				CreatedAt:   comment.CreatedAt,
-			}
-
-			commentResponse.User = FormatUsers{
-				ID:       comment.User.ID,
-				Username: comment.User.Username,
-			}
-
-			// Format likes for the comment
-			commentLikes := make([]FormatLikes, len(comment.Likes))
-			for k, like := range comment.Likes {
-				commentlike := FormatLikes{
-					ID: like.ID,
-				}
-
-				commentlike.User = FormatUsers{
-					ID:       like.User.ID,
-					Username: like.User.Username,
-				}
-
-				commentLikes[k] = commentlike
-			}
-
-			commentResponse.Likes = commentLikes
-
-			comments[j] = commentResponse
-		}
-		formattedPost.Comment = comments
-
-		response[i] = formattedPost
-	}
+	response := formatPosts(posts)
 
 	c.JSON(http.StatusOK, gin.H{
 		"posts": response,
@@ -193,7 +189,7 @@ func GetPostByID(c *gin.Context) {
 			return db.Preload("User").Preload("Likes").Preload("Likes.User")
 		}).
 		Where("id=?", postIDUint).
-		Find(&post).Error; err != nil {
+		Take(&post).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
 			"message": err.Error(),
@@ -201,67 +197,7 @@ func GetPostByID(c *gin.Context) {
 		return
 	}
 
-	formattedPost := FormatPosts{
-		ID:        post.ID,
-		Post:      post.Post,
-		CreatedAt: post.CreatedAt,
-	}
-	formattedPost.User = FormatUsers{
-		ID:       post.User.ID,
-		Username: post.User.Username,
-	}
-
-	// Format likes for the post
-	likes := make([]FormatLikes, len(post.Likes))
-	for k, like := range post.Likes {
-		likesResponse := FormatLikes{
-			ID: like.ID,
-		}
-
-		likesResponse.User = FormatUsers{
-			ID:       like.User.ID,
-			Username: like.User.Username,
-		}
-
-		likes[k] = likesResponse
-	}
-
-	formattedPost.Likes = likes
-
-	// Format comments for the post
-	comments := make([]FormatComments, len(post.Comment))
-	for j, comment := range post.Comment {
-		commentResponse := FormatComments{
-			ID:          comment.ID,
-			Description: comment.Description,
-			CreatedAt:   comment.CreatedAt,
-		}
-
-		commentResponse.User = FormatUsers{
-			ID:       comment.User.ID,
-			Username: comment.User.Username,
-		}
-
-		// Format likes for the comment
-		commentLikes := make([]FormatLikes, len(comment.Likes))
-		for k, like := range comment.Likes {
-			commentlike := FormatLikes{
-				ID: like.ID,
-			}
-
-			commentlike.User = FormatUsers{
-				ID:       like.User.ID,
-				Username: like.User.Username,
-			}
-
-			commentLikes[k] = commentlike
-		}
-
-		commentResponse.Likes = commentLikes
-
-		comments[j] = commentResponse
-	}
-	formattedPost.Comment = comments
+	formattedPost := formatOnePost(post)
 
 	c.JSON(http.StatusOK, gin.H{
 		"posts": formattedPost,
@@ -298,73 +234,7 @@ func GetPostByUserID(c *gin.Context) {
 		return
 	}
 
-	response := make([]FormatPosts, len(posts))
-
-	for i, post := range posts {
-		formattedPost := FormatPosts{
-			ID:        post.ID,
-			Post:      post.Post,
-			CreatedAt: post.CreatedAt,
-		}
-		formattedPost.User = FormatUsers{
-			ID:       post.User.ID,
-			Username: post.User.Username,
-		}
-
-		// Format likes for the post
-		likes := make([]FormatLikes, len(post.Likes))
-		for k, like := range post.Likes {
-			likesResponse := FormatLikes{
-				ID: like.ID,
-			}
-
-			likesResponse.User = FormatUsers{
-				ID:       like.User.ID,
-				Username: like.User.Username,
-			}
-
-			likes[k] = likesResponse
-		}
-
-		formattedPost.Likes = likes
-
-		// Format comments for the post
-		comments := make([]FormatComments, len(post.Comment))
-		for j, comment := range post.Comment {
-			commentResponse := FormatComments{
-				ID:          comment.ID,
-				Description: comment.Description,
-				CreatedAt:   comment.CreatedAt,
-			}
-
-			commentResponse.User = FormatUsers{
-				ID:       comment.User.ID,
-				Username: comment.User.Username,
-			}
-
-			// Format likes for the comment
-			commentLikes := make([]FormatLikes, len(comment.Likes))
-			for k, like := range comment.Likes {
-				commentlike := FormatLikes{
-					ID: like.ID,
-				}
-
-				commentlike.User = FormatUsers{
-					ID:       like.User.ID,
-					Username: like.User.Username,
-				}
-
-				commentLikes[k] = commentlike
-			}
-
-			commentResponse.Likes = commentLikes
-
-			comments[j] = commentResponse
-		}
-		formattedPost.Comment = comments
-
-		response[i] = formattedPost
-	}
+	response := formatPosts(posts)
 
 	c.JSON(http.StatusOK, gin.H{
 		"posts": response,
