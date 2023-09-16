@@ -90,7 +90,7 @@ go run main.go
 ### - Create Comment
 #### Request
 ```sh
-# POST | localhost:3001/api/posts/[postId]/comment
+# POST | localhost:3001/api/posts/[postID]/comment
 {
     "description": "Your Comment Description"
 }
@@ -113,26 +113,26 @@ go run main.go
 ### - Create Like Post
 #### Request
 ```sh
-# POST | localhost:3001/api/posts/[postId]/like
+# POST | localhost:3001/api/posts/[postID]/like
 ```
 
 #### Response
 ```json
 {
-    "message": "Like post with id [postId] success"
+    "message": "Like post with id [postID] success"
 }
 ```
 
 ### - Create Like Comment
 #### Request
 ```sh
-# POST | localhost:3001/api/comments/[commentId]/like
+# POST | localhost:3001/api/comments/[commentID]/like
 ```
 
 #### Response
 ```json
 {
-    "message": "Like comment with id [commentId] success"
+    "message": "Like comment with id [commentID] success"
 }
 ```
 
@@ -166,7 +166,7 @@ go run main.go
 ### - Show Posts
 #### Request
 ```sh
-# GET | localhost:3001/api/posts/[postId]
+# GET | localhost:3001/api/posts/[postID]
 ```
 
 #### Response
@@ -190,7 +190,7 @@ go run main.go
 ### - Get All Posts By User
 #### Request
 ```sh
-# GET | localhost:3001/api/posts/user/[userId]
+# GET | localhost:3001/api/posts/user/[userID]
 ```
 
 #### Response
@@ -210,6 +210,33 @@ go run main.go
             "comments": [],
         }
     ]
+}
+```
+
+## Delete Post/Comment
+### Delete Post
+#### Request
+```sh
+# DELETE | localhost:3001/api/posts/[postID]
+```
+
+#### Response
+```json
+{
+    "message": "Post with id [postID] deleted successfully"
+}
+```
+
+### Delete Comment
+#### Request
+```sh
+# DELETE | localhost:3001/api/comments/[commentID]
+```
+
+#### Response
+```json
+{
+    "message": "Comment with id [commentID] deleted successfully"
 }
 ```
 
@@ -233,7 +260,7 @@ go run main.go
 ### - Show Other Profile User
 #### Request
 ```sh
-# POST | localhost:3001/api/users/[userId]
+# POST | localhost:3001/api/users/[userID]
 ```
 
 #### Response
