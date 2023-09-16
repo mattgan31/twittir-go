@@ -15,18 +15,18 @@ import (
 )
 
 type FormatPosts struct {
-	ID         uint             `json:"id"`
-	Post       string           `json:"post"`
-	Created_At time.Time        `json:"createdAt"`
-	User       FormatUsers      `json:"user"`
-	Likes      []FormatLikes    `json:"likes"`
-	Comment    []FormatComments `json:"comments"`
+	ID        uint             `json:"id"`
+	Post      string           `json:"post"`
+	CreatedAt time.Time        `json:"createdAt"`
+	User      FormatUsers      `json:"user"`
+	Likes     []FormatLikes    `json:"likes"`
+	Comment   []FormatComments `json:"comments"`
 }
 
 type FormatComments struct {
 	ID          uint          `json:"id"`
 	Description string        `json:"description"`
-	Created_At  time.Time     `json:"createdAt"`
+	CreatedAt   time.Time     `json:"createdAt"`
 	User        FormatUsers   `json:"user"`
 	Likes       []FormatLikes `json:"likes"`
 }
@@ -56,8 +56,6 @@ func CreatePost(c *gin.Context) {
 		c.ShouldBind(&Post)
 	}
 
-	Post.Created_At = time.Now()
-	Post.Updated_At = time.Now()
 	Post.UserID = userID
 
 	err := db.Debug().Create(&Post).Error
@@ -74,7 +72,7 @@ func CreatePost(c *gin.Context) {
 		"post": gin.H{
 			"id":        Post.ID,
 			"post":      Post.Post,
-			"createdAt": Post.Created_At,
+			"createdAt": Post.CreatedAt,
 			"user_id":   Post.UserID,
 		},
 	})
@@ -104,9 +102,9 @@ func GetPosts(c *gin.Context) {
 
 	for i, post := range posts {
 		formattedPost := FormatPosts{
-			ID:         post.ID,
-			Post:       post.Post,
-			Created_At: post.Created_At,
+			ID:        post.ID,
+			Post:      post.Post,
+			CreatedAt: post.CreatedAt,
 		}
 		formattedPost.User = FormatUsers{
 			ID:       post.User.ID,
@@ -136,7 +134,7 @@ func GetPosts(c *gin.Context) {
 			commentResponse := FormatComments{
 				ID:          comment.ID,
 				Description: comment.Description,
-				Created_At:  comment.Created_At,
+				CreatedAt:   comment.CreatedAt,
 			}
 
 			commentResponse.User = FormatUsers{
@@ -204,9 +202,9 @@ func GetPostByID(c *gin.Context) {
 	}
 
 	formattedPost := FormatPosts{
-		ID:         post.ID,
-		Post:       post.Post,
-		Created_At: post.Created_At,
+		ID:        post.ID,
+		Post:      post.Post,
+		CreatedAt: post.CreatedAt,
 	}
 	formattedPost.User = FormatUsers{
 		ID:       post.User.ID,
@@ -236,7 +234,7 @@ func GetPostByID(c *gin.Context) {
 		commentResponse := FormatComments{
 			ID:          comment.ID,
 			Description: comment.Description,
-			Created_At:  comment.Created_At,
+			CreatedAt:   comment.CreatedAt,
 		}
 
 		commentResponse.User = FormatUsers{
@@ -304,9 +302,9 @@ func GetPostByUserID(c *gin.Context) {
 
 	for i, post := range posts {
 		formattedPost := FormatPosts{
-			ID:         post.ID,
-			Post:       post.Post,
-			Created_At: post.Created_At,
+			ID:        post.ID,
+			Post:      post.Post,
+			CreatedAt: post.CreatedAt,
 		}
 		formattedPost.User = FormatUsers{
 			ID:       post.User.ID,
@@ -336,7 +334,7 @@ func GetPostByUserID(c *gin.Context) {
 			commentResponse := FormatComments{
 				ID:          comment.ID,
 				Description: comment.Description,
-				Created_At:  comment.Created_At,
+				CreatedAt:   comment.CreatedAt,
 			}
 
 			commentResponse.User = FormatUsers{

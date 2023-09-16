@@ -35,8 +35,8 @@ func CreateComment(c *gin.Context) {
 		c.ShouldBind(&Comment)
 	}
 
-	Comment.Created_At = time.Now()
-	Comment.Updated_At = time.Now()
+	Comment.CreatedAt = time.Now()
+	Comment.UpdatedAt = time.Now()
 	Comment.UserID = userID
 	Comment.PostID = postIDUint
 
@@ -55,7 +55,7 @@ func CreateComment(c *gin.Context) {
 			"id":        Comment.ID,
 			"comment":   Comment.Description,
 			"post_id":   Comment.PostID,
-			"createdAt": Comment.Created_At,
+			"createdAt": Comment.CreatedAt,
 			"user":      Comment.UserID,
 		},
 	})

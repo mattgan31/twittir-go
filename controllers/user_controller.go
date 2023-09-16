@@ -3,7 +3,6 @@ package controllers
 import (
 	"net/http"
 	"strconv"
-	"time"
 	"twittir-go/database"
 	"twittir-go/helpers"
 	"twittir-go/models"
@@ -32,9 +31,6 @@ func UserRegister(c *gin.Context) {
 	} else {
 		c.ShouldBind(&User)
 	}
-
-	User.Created_At = time.Now()
-	User.Updated_At = time.Now()
 
 	err := db.Debug().Create(&User).Error
 
