@@ -18,7 +18,7 @@ func StartServer() *gin.Engine {
 
 	router := gin.Default()
 	router.Use(cors.New(config))
-
+	router.SetTrustedProxies([]string{"127.0.0.1"})
 	apiRouter := router.Group("/api")
 	{
 		// Auth
