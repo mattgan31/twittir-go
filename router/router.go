@@ -11,8 +11,8 @@ import (
 func StartServer() *gin.Engine {
 
 	config := cors.DefaultConfig()
-	// config.AllowOrigins = []string{"http://localhost:3000"} // Replace with your allowed origins
-	config.AllowAllOrigins = true
+	config.AllowOrigins = []string{"http://localhost:3000"} // Replace with your allowed origins
+	// config.AllowAllOrigins = true
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	config.AllowHeaders = []string{"Origin", "Content-Type", "Authorization"}
 
