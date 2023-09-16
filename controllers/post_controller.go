@@ -390,7 +390,7 @@ func DeletePost(c *gin.Context) {
 
 	if err := db.Debug().Where("id=?", postIDUint).
 		Where("user_id=?", userID).
-		First(&post).
+		Take(&post).
 		Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
