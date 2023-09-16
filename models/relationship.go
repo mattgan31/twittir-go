@@ -8,7 +8,7 @@ import (
 )
 
 type Relationship struct {
-	GormModel
+	gorm.Model
 	FollowerID  uint `gorm:"not null" json:"follower_id" valid:"required"`
 	FollowingID uint `gorm:"not null" json:"following_id" valid:"required"`
 }
