@@ -12,8 +12,7 @@ import (
 func StartServer() *gin.Engine {
 
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:3000"} // Replace with your allowed origins
-	config.AllowOrigins = []string{"https://twittir-app.vercel.app"}
+	config.AllowOrigins = []string{"http://localhost:3000", "https://twittir-app.vercel.app"} // Replace with your allowed origins
 	// config.AllowAllOrigins = true
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	config.AllowHeaders = []string{"Origin", "Content-Type", "Authorization"}
