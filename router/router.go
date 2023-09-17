@@ -1,6 +1,7 @@
 package router
 
 import (
+	"net/http"
 	"twittir-go/controllers"
 	"twittir-go/middleware"
 
@@ -19,6 +20,13 @@ func StartServer() *gin.Engine {
 	router := gin.Default()
 	router.Use(cors.New(config))
 	router.SetTrustedProxies([]string{"127.0.0.1"})
+
+	router.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Welcome to Twittir API",
+		})
+	})
+
 	apiRouter := router.Group("/api")
 	{
 		// Auth
