@@ -152,6 +152,7 @@ func GetPosts(c *gin.Context) {
 		Preload("Comment", func(db *gorm.DB) *gorm.DB {
 			return db.Preload("User").Preload("Likes").Preload("Likes.User")
 		}).
+		Order("created_at desc").
 		Find(&posts).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
@@ -226,6 +227,7 @@ func GetPostByUserID(c *gin.Context) {
 			return db.Preload("User").Preload("Likes").Preload("Likes.User")
 		}).
 		Where("user_id=?", userIDUint).
+		Order("created_at desc").
 		Find(&posts).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
