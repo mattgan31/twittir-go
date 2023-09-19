@@ -20,6 +20,12 @@ type Login struct {
 	Password string `json:"password"`
 }
 
+type UpdateUser struct {
+	Username  string `json:"username"`
+	Full_Name string `json:"full_name"`
+	Bio       string `json:"bio"`
+}
+
 func UserRegister(c *gin.Context) {
 	db := database.GetDB()
 	contentType := helpers.GetContentType(c)
@@ -90,6 +96,46 @@ func UserLogin(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"token": token,
+	})
+}
+
+func SettingsProfile(c *gin.Context) {
+	db := database.GetDB()
+	contentType := helpers.GetContentType(c)
+	userData := c.MustGet("userData").(jwt.MapClaims)
+	userID := uint(userData["id"].(float64))
+	User := models.User{}
+
+	if err := db.First(&User, userID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	updateUserProfile := models.User{}
+
+	if contentType == appJSON {
+		c.ShouldBindJSON(&updateUserProfile)
+	} else {
+		c.ShouldBind(&updateUserProfile)
+	}
+
+	if err := db.Model(&User).Updates(UpdateUser{Full_Name: updateUserProfile.Full_Name, Username: updateUserProfile.Username, Bio: updateUserProfile.Bio}).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": gin.H{
+			"username":  User.Username,
+			"full_name": User.Full_Name,
+			"bio":       User.Bio,
+		},
 	})
 }
 
