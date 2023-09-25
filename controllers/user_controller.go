@@ -26,16 +26,39 @@ type UpdateUser struct {
 	Bio       string `json:"bio"`
 }
 
+type formatUserRegister struct {
+	Username      string `json:"username"`
+	Email         string `json:"email"`
+	Full_Name     string `json:"full_name"`
+	Password      string `json:"password"`
+	PasswordVerif string `json:"password_verif"`
+}
+
 func UserRegister(c *gin.Context) {
 	db := database.GetDB()
 	contentType := helpers.GetContentType(c)
 
-	User := models.User{}
+	formatUser := formatUserRegister{}
 
 	if contentType == appJSON {
-		c.ShouldBindJSON(&User)
+		c.ShouldBindJSON(&formatUser)
 	} else {
-		c.ShouldBind(&User)
+		c.ShouldBind(&formatUser)
+	}
+
+	if formatUser.Password != formatUser.PasswordVerif {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "invalid password",
+		})
+		return
+	}
+
+	User := models.User{
+		Username:  formatUser.Username,
+		Email:     formatUser.Email,
+		Full_Name: formatUser.Full_Name,
+		Password:  formatUser.Password,
 	}
 
 	err := db.Debug().Create(&User).Error
