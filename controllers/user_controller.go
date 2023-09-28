@@ -65,7 +65,7 @@ func UserRegister(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  "error",
+			"status":  "BAD_REQUEST",
 			"message": err.Error(),
 		})
 		return
@@ -99,7 +99,7 @@ func UserLogin(c *gin.Context) {
 	err := db.Debug().Where("username=?", Login.Username).Take(&User).Error
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"status":  "error",
+			"status":  "UNAUTHORIZED",
 			"message": "Invalid Username/Password",
 		})
 		return
@@ -109,7 +109,7 @@ func UserLogin(c *gin.Context) {
 
 	if !comparePass {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"status":  "error",
+			"status":  "UNAUTHORIZED",
 			"message": "Invalid username/password",
 		})
 		return
@@ -131,7 +131,7 @@ func SettingsProfile(c *gin.Context) {
 
 	if err := db.First(&User, userID).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  "error",
+			"status":  "BAD_REQUEST",
 			"message": err.Error(),
 		})
 		return
@@ -147,7 +147,7 @@ func SettingsProfile(c *gin.Context) {
 
 	if err := db.Model(&User).Updates(UpdateUser{Full_Name: updateUserProfile.Full_Name, Username: updateUserProfile.Username, Bio: updateUserProfile.Bio}).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  "error",
+			"status":  "BAD_REQUEST",
 			"message": err.Error(),
 		})
 		return
@@ -172,7 +172,7 @@ func GetDetailUser(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  "error",
+			"status":  "BAD_REQUEST",
 			"message": err.Error(),
 		})
 		return
@@ -196,7 +196,7 @@ func SearchUser(c *gin.Context) {
 	err := db.Debug().Where("username like ?", usernameParam+"%").Find(&User).Error
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  "error",
+			"status":  "BAD_REQUEST",
 			"message": err.Error(),
 		})
 		return
@@ -214,7 +214,7 @@ func SearchUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"users": response,
+		"data": response,
 	})
 }
 
@@ -226,7 +226,10 @@ func GetUserByID(c *gin.Context) {
 	userIDStr := c.Param("id")
 	userID, err := strconv.ParseUint(userIDStr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UserID"})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": "BAD_REQUEST",
+			"error":  "Invalid UserID",
+		})
 		return
 	}
 
@@ -241,9 +244,11 @@ func GetUserByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"id":              user.ID,
-		"full_name":       user.Full_Name,
-		"username":        user.Username,
-		"profile_picture": user.Profile_Picture,
+		"data": gin.H{
+			"id":              user.ID,
+			"full_name":       user.Full_Name,
+			"username":        user.Username,
+			"profile_picture": user.Profile_Picture,
+		},
 	})
 }

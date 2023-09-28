@@ -116,7 +116,7 @@ func CreateLikeComment(c *gin.Context) {
 
 			if err = db.Unscoped().Model(&liked).Update("deleted_at", nil).Error; err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{
-					"status":  "error",
+					"status":  "BAD_REQUEST",
 					"message": err.Error(),
 				})
 				return
@@ -130,7 +130,7 @@ func CreateLikeComment(c *gin.Context) {
 			err = db.Debug().Delete(&liked).Error
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{
-					"status":  "error",
+					"status":  "BAD_REQUEST",
 					"message": err.Error(),
 				})
 				return
@@ -151,7 +151,7 @@ func CreateLikeComment(c *gin.Context) {
 		err = db.Debug().Create(&Likes).Error
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"status":  "error",
+				"status":  "BAD_REQUEST",
 				"message": err.Error(),
 			})
 			return

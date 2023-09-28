@@ -124,14 +124,14 @@ func CreatePost(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  "error",
+			"status":  "BAD_REQUEST",
 			"message": err.Error(),
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"post": gin.H{
+		"data": gin.H{
 			"id":        Post.ID,
 			"post":      Post.Post,
 			"createdAt": Post.CreatedAt,
@@ -155,7 +155,7 @@ func GetPosts(c *gin.Context) {
 		Order("created_at desc").
 		Find(&posts).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  "error",
+			"status":  "BAD_REQUEST",
 			"message": err.Error(),
 		})
 		return
@@ -164,7 +164,7 @@ func GetPosts(c *gin.Context) {
 	response := formatPosts(posts)
 
 	c.JSON(http.StatusOK, gin.H{
-		"posts": response,
+		"data": response,
 	})
 }
 
@@ -174,7 +174,10 @@ func GetPostByID(c *gin.Context) {
 	postIDStr := c.Param("id")
 	postID, err := strconv.ParseUint(postIDStr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid PostID"})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": "BAD_REQUEST",
+			"error":  "Invalid PostID",
+		})
 		return
 	}
 
@@ -192,7 +195,7 @@ func GetPostByID(c *gin.Context) {
 		Where("id=?", postIDUint).
 		Take(&post).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  "error",
+			"status":  "BAD_REQUEST",
 			"message": err.Error(),
 		})
 		return
@@ -201,7 +204,7 @@ func GetPostByID(c *gin.Context) {
 	formattedPost := formatOnePost(post)
 
 	c.JSON(http.StatusOK, gin.H{
-		"posts": formattedPost,
+		"data": formattedPost,
 	})
 }
 
@@ -211,7 +214,10 @@ func GetPostByUserID(c *gin.Context) {
 	userIDStr := c.Param("id")
 	userID, err := strconv.ParseUint(userIDStr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UserID"})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": "BAD_REQUEST",
+			"error":  "Invalid UserID",
+		})
 		return
 	}
 
@@ -230,7 +236,7 @@ func GetPostByUserID(c *gin.Context) {
 		Order("created_at desc").
 		Find(&posts).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  "error",
+			"status":  "BAD_REQUEST",
 			"message": err.Error(),
 		})
 		return
@@ -239,7 +245,7 @@ func GetPostByUserID(c *gin.Context) {
 	response := formatPosts(posts)
 
 	c.JSON(http.StatusOK, gin.H{
-		"posts": response,
+		"data": response,
 	})
 }
 
@@ -254,7 +260,10 @@ func DeletePost(c *gin.Context) {
 	postIDStr := c.Param("id")
 	postID, err := strconv.ParseUint(postIDStr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid PostID"})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": "BAD_REQUEST",
+			"error":  "Invalid PostID",
+		})
 		return
 	}
 
@@ -265,7 +274,7 @@ func DeletePost(c *gin.Context) {
 		Take(&post).
 		Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  "error",
+			"status":  "BAD_REQUEST",
 			"message": err.Error(),
 		})
 		return
@@ -275,7 +284,7 @@ func DeletePost(c *gin.Context) {
 		Delete(&post).
 		Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  "error",
+			"status":  "BAD_REQUEST",
 			"message": err.Error(),
 		})
 		return
