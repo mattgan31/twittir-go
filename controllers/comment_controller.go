@@ -23,7 +23,10 @@ func CreateComment(c *gin.Context) {
 	postIDStr := c.Param("id")
 	postID, err := strconv.ParseUint(postIDStr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid PostID"})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": "BAD_REQUEST",
+			"error":  "Invalid PostID",
+		})
 		return
 	}
 
@@ -45,7 +48,7 @@ func CreateComment(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  "error",
+			"status":  "BAD_REQUEST",
 			"message": err.Error(),
 		})
 		return
@@ -73,7 +76,10 @@ func DeleteComment(c *gin.Context) {
 	commentIDStr := c.Param("id")
 	commentID, err := strconv.ParseUint(commentIDStr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid CommentID"})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": "BAD_REQUEST",
+			"error":  "Invalid CommentID",
+		})
 		return
 	}
 
@@ -84,7 +90,7 @@ func DeleteComment(c *gin.Context) {
 		Take(&comment).
 		Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  "error",
+			"status":  "BAD_REQUEST",
 			"message": err.Error(),
 		})
 		return
@@ -94,7 +100,7 @@ func DeleteComment(c *gin.Context) {
 		Delete(&comment).
 		Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  "error",
+			"status":  "BAD_REQUEST",
 			"message": err.Error(),
 		})
 		return

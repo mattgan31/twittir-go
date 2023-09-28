@@ -39,7 +39,7 @@ func FollowUser(c *gin.Context) {
 		err = db.Debug().Where("follower_id=?", userID).Where("following_id=?", followingIDUint).Delete(&followed).Error
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"status":  "error",
+				"status":  "BAD_REQUEST",
 				"message": err.Error(),
 			})
 			return
@@ -52,7 +52,7 @@ func FollowUser(c *gin.Context) {
 		err = db.Debug().Create(&Relationship).Error
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"status":  "error",
+				"status":  "BAD_REQUEST",
 				"message": err.Error(),
 			})
 			return
