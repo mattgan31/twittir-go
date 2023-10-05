@@ -33,8 +33,9 @@ type FormatComments struct {
 }
 
 type FormatUsers struct {
-	ID       uint   `json:"id"`
-	Username string `json:"username"`
+	ID              uint   `json:"id"`
+	Username        string `json:"username"`
+	Profile_Picture string `json:"profile_picture"`
 }
 
 type FormatLikes struct {
