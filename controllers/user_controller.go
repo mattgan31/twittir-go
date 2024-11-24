@@ -22,14 +22,14 @@ type Login struct {
 
 type UpdateUser struct {
 	Username  string `json:"username"`
-	Full_Name string `json:"full_name"`
+	Full_Name string `json:"fullname"`
 	Bio       string `json:"bio"`
 }
 
 type formatUserRegister struct {
 	Username      string `json:"username"`
 	Email         string `json:"email"`
-	Full_Name     string `json:"full_name"`
+	Full_Name     string `json:"fullname"`
 	Password      string `json:"password"`
 	PasswordVerif string `json:"password_verif"`
 }
@@ -100,7 +100,7 @@ func UserLogin(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"status":  "UNAUTHORIZED",
-			"message": "Invalid Username/Password",
+			"message": "Invalid username/password",
 		})
 		return
 	}
@@ -156,7 +156,7 @@ func SettingsProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
 			"username":  User.Username,
-			"full_name": User.Full_Name,
+			"fullname": User.Full_Name,
 			"bio":       User.Bio,
 		},
 	})
@@ -180,7 +180,7 @@ func GetDetailUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"id":              User.ID,
-		"full_name":       User.Full_Name,
+		"fullname":        User.Full_Name,
 		"username":        User.Username,
 		"profile_picture": User.Profile_Picture,
 	})
@@ -246,7 +246,7 @@ func GetUserByID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
 			"id":              user.ID,
-			"full_name":       user.Full_Name,
+			"fullname":        user.Full_Name,
 			"username":        user.Username,
 			"profile_picture": user.Profile_Picture,
 		},

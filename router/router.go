@@ -46,6 +46,10 @@ func StartServer() *gin.Engine {
 
 		// Relationship / Follow
 		apiRouter.POST("/users/:id/follow", middleware.Authentication(), controllers.FollowUser)
+
+		// GOOGLE SIGNIN
+		apiRouter.GET("/google_login", controllers.GoogleLogin)
+		apiRouter.GET("/google_callback", controllers.GoogleCallback)
 	}
 
 	return router

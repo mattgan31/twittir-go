@@ -9,7 +9,7 @@ import (
 
 type User struct {
 	gorm.Model
-	Full_Name       string         `gorm:"not null" json:"full_name" valid:"required~Full name is required"`
+	Full_Name       string         `gorm:"not null" json:"fullname" valid:"required~Full name is required"`
 	Username        string         `gorm:"not null;unique" json:"username" valid:"required~Username is required"`
 	Email           string         `gorm:"not null;unique" json:"email" valid:"required~Email is required, email~Invalid email format"`
 	Password        string         `gorm:"not null" json:"password" valid:"required~Password is required, stringlength(6|255)~Password has to have a minimum length of 6 characters"`
