@@ -35,8 +35,8 @@ type FormatComments struct {
 type FormatUsers struct {
 	ID              uint   `json:"id"`
 	Username        string `json:"username"`
-	Full_Name 		string `json:"fullname"`
-	Profile_Picture string `json:"profile_picture"`
+	FullName 		string `json:"fullname"`
+	ProfilePicture string `json:"profile_picture"`
 }
 
 type FormatLikes struct {
@@ -49,7 +49,7 @@ func formatUser(user *models.User) FormatUsers {
 	return FormatUsers{
 		ID:       user.ID,
 		Username: user.Username,
-		Full_Name: user.Full_Name,
+		FullName: user.FullName,
 	}
 }
 

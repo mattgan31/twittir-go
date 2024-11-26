@@ -9,17 +9,18 @@ import (
 
 type User struct {
 	gorm.Model
-	Full_Name       string         `gorm:"not null" json:"fullname" valid:"required~Full name is required"`
-	Username        string         `gorm:"not null;unique" json:"username" valid:"required~Username is required"`
-	Email           string         `gorm:"not null;unique" json:"email" valid:"required~Email is required, email~Invalid email format"`
-	Password        string         `gorm:"not null" json:"password" valid:"required~Password is required, stringlength(6|255)~Password has to have a minimum length of 6 characters"`
-	Bio             string         `gorm:"not null" json:"bio" valid:"stringlength(0|255)"`
-	Profile_Picture string         `gorm:"not null"`
-	Post            []Post         `gorm:"foreignKey:UserID"`
-	Comment         []Comment      `gorm:"foreignKey:UserID"`
-	Likes           []Likes        `gorm:"foreignKey:UserID"`
-	Followers       []Relationship `gorm:"foreignKey:FollowerID"`
-	Following       []Relationship `gorm:"foreignKey:FollowingID"`
+	FullName       string         `gorm:"not null" json:"full_name" validate:"required"`
+	Username       string         `gorm:"not null;unique" json:"username" validate:"required"`
+	Email          string         `gorm:"not null;unique" json:"email" validate:"required,email"`
+	Password       string         `gorm:"not null" json:"-" validate:"required,min=6"`
+	Bio            string         `gorm:"type:text;default:null" json:"bio" validate:"max=255"`
+	ProfilePicture string         `gorm:"type:text;default:null" json:"profile_picture"`
+	SearchVector   string         `gorm:"type:tsvector;generated" json:"-"`
+	Posts          []Post         `gorm:"foreignKey:UserID" json:"posts"`
+	Comments       []Comment      `gorm:"foreignKey:UserID" json:"comments"`
+	Likes          []Likes        `gorm:"foreignKey:UserID" json:"likes"`
+	Followers      []Relationship `gorm:"foreignKey:FollowerID" json:"followers"`
+	Following      []Relationship `gorm:"foreignKey:FollowingID" json:"following"`
 }
 
 func (u *User) BeforeCreate(g *gorm.DB) (err error) {

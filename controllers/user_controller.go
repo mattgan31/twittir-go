@@ -22,14 +22,14 @@ type Login struct {
 
 type UpdateUser struct {
 	Username  string `json:"username"`
-	Full_Name string `json:"fullname"`
+	FullName string `json:"fullname"`
 	Bio       string `json:"bio"`
 }
 
 type formatUserRegister struct {
 	Username      string `json:"username"`
 	Email         string `json:"email"`
-	Full_Name     string `json:"fullname"`
+	FullName     string `json:"fullname"`
 	Password      string `json:"password"`
 	PasswordVerif string `json:"password_verif"`
 }
@@ -57,7 +57,7 @@ func UserRegister(c *gin.Context) {
 	User := models.User{
 		Username:  formatUser.Username,
 		Email:     formatUser.Email,
-		Full_Name: formatUser.Full_Name,
+		FullName: formatUser.FullName,
 		Password:  formatUser.Password,
 	}
 
@@ -75,7 +75,7 @@ func UserRegister(c *gin.Context) {
 		"status": "success",
 		"data": gin.H{
 			"id":       User.ID,
-			"fullname": User.Full_Name,
+			"fullname": User.FullName,
 			"email":    User.Email,
 		},
 	})
@@ -145,7 +145,7 @@ func SettingsProfile(c *gin.Context) {
 		c.ShouldBind(&updateUserProfile)
 	}
 
-	if err := db.Model(&User).Updates(UpdateUser{Full_Name: updateUserProfile.Full_Name, Username: updateUserProfile.Username, Bio: updateUserProfile.Bio}).Error; err != nil {
+	if err := db.Model(&User).Updates(UpdateUser{FullName: updateUserProfile.FullName, Username: updateUserProfile.Username, Bio: updateUserProfile.Bio}).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "BAD_REQUEST",
 			"message": err.Error(),
@@ -156,7 +156,7 @@ func SettingsProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
 			"username":  User.Username,
-			"fullname": User.Full_Name,
+			"fullname": User.FullName,
 			"bio":       User.Bio,
 		},
 	})
@@ -180,20 +180,35 @@ func GetDetailUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"id":              User.ID,
-		"fullname":        User.Full_Name,
+		"fullname":        User.FullName,
 		"username":        User.Username,
-		"profile_picture": User.Profile_Picture,
+		"profile_picture": User.ProfilePicture,
 	})
 }
 
 func SearchUser(c *gin.Context) {
+
+	query := `SELECT username, full_name FROM users 
+              WHERE search_vector @@ to_tsquery(?) 
+              ORDER BY ts_rank(search_vector, to_tsquery(?)) DESC`
+
 	db := database.GetDB()
 
 	usernameParam := c.DefaultQuery("username", "")
 
+	if usernameParam == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "BAD_REQUEST",
+			"message": "username query parameter is required",
+		})
+		return
+	}
+
+	searchQuery := usernameParam + ":*"
+
 	var User []models.User
 
-	err := db.Debug().Where("username like ?", usernameParam+"%").Find(&User).Error
+	err := db.Debug().Raw(query, searchQuery, searchQuery).Scan(&User).Error
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "BAD_REQUEST",
@@ -246,9 +261,9 @@ func GetUserByID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
 			"id":              user.ID,
-			"fullname":        user.Full_Name,
+			"fullname":        user.FullName,
 			"username":        user.Username,
-			"profile_picture": user.Profile_Picture,
+			"profile_picture": user.ProfilePicture,
 		},
 	})
 }
