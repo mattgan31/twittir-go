@@ -1,0 +1,29 @@
+project-name/
+├── cmd/
+│   └── app/
+│       └── main.go         # Entry point aplikasi
+├── internal/
+│   ├── config/             # Konfigurasi aplikasi (ex: Viper)
+│   ├── database/           # Koneksi database dan migration
+│   ├── domain/             # Struktur data / model bisnis
+│   ├── repository/         # Interaksi dengan database
+│   ├── service/            # Logika bisnis utama
+│   ├── middleware/         # Middleware untuk request processing
+│   ├── handler/            # Controllers atau API handlers
+│   ├── routes/             # Definisi routing
+│   ├── helpers/            # Utility functions atau helpers
+├── api/
+│   ├── routes/
+│   │   └── router.go       # Routing utama
+│   ├── handler/
+│   │   └── user_handler.go # Contoh handler
+├── config/
+│   ├── config.go           # Load environment
+│   ├── .env                # File konfigurasi environment
+├── scripts/                # Script untuk deployment atau testing
+├── test/                   # Unit test & integration test
+├── .vscode/                # Konfigurasi editor
+├── .gitignore              # Ignore file
+├── go.mod                  # Dependency management
+├── go.sum                  # Checksum dependency
+├── README.md               # Dokumentasi proyek

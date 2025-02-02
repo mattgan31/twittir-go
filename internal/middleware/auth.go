@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"twittir-go/helpers"
+	"twittir-go/internal/helpers"
 
 	"github.com/gin-gonic/gin"
 )

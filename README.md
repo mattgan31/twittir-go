@@ -30,7 +30,7 @@ go run main.go
 {
     "email": "your_email@email.com",
     "username": "your_username",
-    "full_name": "Your Fullname",
+    "fullname": "Your Fullname",
     "password": "yourpassword"
 }
 ```
@@ -250,9 +250,9 @@ go run main.go
 #### Response
 ```json
 {
-    "full_name": "Your Fullname",
+    "fullname": "Your Fullname",
     "id": 1,
-    "profile_picture": "",
+    "ProfilePicture": "",
     "username": "your_username"
 }
 ```
@@ -266,9 +266,9 @@ go run main.go
 #### Response
 ```json
 {
-    "full_name": "Fullname",
+    "fullname": "Fullname",
     "id": 1,
-    "profile_picture": "",
+    "ProfilePicture": "",
     "username": "username"
 }
 ```

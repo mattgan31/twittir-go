@@ -1,11 +1,11 @@
-package controllers
+package handler
 
 import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"twittir-go/database"
-	"twittir-go/models"
+	"twittir-go/internal/database"
+	"twittir-go/internal/domain"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -13,7 +13,7 @@ import (
 
 func FollowUser(c *gin.Context) {
 	db := database.GetDB()
-	Relationship := models.Relationship{}
+	Relationship := domain.Relationship{}
 
 	// Current User ID
 	userData := c.MustGet("userData").(jwt.MapClaims)
@@ -32,7 +32,7 @@ func FollowUser(c *gin.Context) {
 	Relationship.FollowerID = userID
 	Relationship.FollowingID = followingIDUint
 
-	var followed models.Relationship
+	var followed domain.Relationship
 	err = db.Debug().Where("follower_id=?", userID).Where("following_id=?", followingIDUint).Take(&followed).Error
 
 	if followed.ID != 0 {

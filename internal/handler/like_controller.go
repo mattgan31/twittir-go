@@ -1,13 +1,13 @@
-package controllers
+package handler
 
 import (
 	"fmt"
 	"net/http"
 	"strconv"
 	"time"
-	"twittir-go/database"
-	"twittir-go/helpers"
-	"twittir-go/models"
+	"twittir-go/internal/database"
+	"twittir-go/internal/domain"
+	"twittir-go/internal/helpers"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -15,7 +15,7 @@ import (
 
 func CreateLikePost(c *gin.Context) {
 	db := database.GetDB()
-	Likes := models.Likes{}
+	Likes := domain.Likes{}
 
 	userData := c.MustGet("userData").(jwt.MapClaims)
 	userID := uint(userData["id"].(float64))
@@ -29,7 +29,7 @@ func CreateLikePost(c *gin.Context) {
 
 	postIDUint := uint(postID)
 
-	var liked models.Likes
+	var liked domain.Likes
 	db.Debug().Unscoped().Where("user_id=? AND post_id=?", userID, postIDUint).Take(&liked)
 
 	if liked.ID != 0 {
@@ -88,7 +88,7 @@ func CreateLikePost(c *gin.Context) {
 func CreateLikeComment(c *gin.Context) {
 	db := database.GetDB()
 	contentType := helpers.GetContentType(c)
-	Likes := models.Likes{}
+	Likes := domain.Likes{}
 
 	userData := c.MustGet("userData").(jwt.MapClaims)
 	userID := uint(userData["id"].(float64))
@@ -108,7 +108,7 @@ func CreateLikeComment(c *gin.Context) {
 		c.ShouldBind(&Likes)
 	}
 
-	var liked models.Likes
+	var liked domain.Likes
 	db.Debug().Unscoped().Where("user_id=? AND comment_id=?", userID, commentIDUint).Take(&liked)
 
 	if liked.ID != 0 {

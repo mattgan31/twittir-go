@@ -1,13 +1,13 @@
-package controllers
+package handler
 
 import (
 	"fmt"
 	"net/http"
 	"strconv"
 	"time"
-	"twittir-go/database"
-	"twittir-go/helpers"
-	"twittir-go/models"
+	"twittir-go/internal/database"
+	"twittir-go/internal/domain"
+	"twittir-go/internal/helpers"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -31,7 +31,7 @@ func CreateComment(c *gin.Context) {
 	}
 
 	postIDUint := uint(postID)
-	Comment := models.Comment{}
+	Comment := domain.Comment{}
 
 	if contentType == appJSON {
 		c.ShouldBindJSON(&Comment)
@@ -68,7 +68,7 @@ func CreateComment(c *gin.Context) {
 func DeleteComment(c *gin.Context) {
 	db := database.GetDB()
 
-	var comment models.Comment
+	var comment domain.Comment
 
 	userData := c.MustGet("userData").(jwt.MapClaims)
 	userID := uint(userData["id"].(float64))
