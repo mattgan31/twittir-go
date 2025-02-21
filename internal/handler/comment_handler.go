@@ -8,13 +8,24 @@ import (
 	"twittir-go/internal/database"
 	"twittir-go/internal/domain"
 	"twittir-go/internal/helpers"
+	"twittir-go/internal/services"
+	"twittir-go/internal/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 )
 
-func CreateComment(c *gin.Context) {
-	db := database.GetDB()
+type CommentHandler struct {
+	commentService services.CommentService
+	userHandler    *UserHandler
+}
+
+func NewCommentHandler(commentService services.CommentService, userHandler *UserHandler) *CommentHandler {
+	return &CommentHandler{commentService, userHandler}
+}
+
+func (h *CommentHandler) CreateComment(c *gin.Context) {
+
 	contentType := helpers.GetContentType(c)
 
 	userData := c.MustGet("userData").(jwt.MapClaims)
@@ -23,10 +34,7 @@ func CreateComment(c *gin.Context) {
 	postIDStr := c.Param("id")
 	postID, err := strconv.ParseUint(postIDStr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": "BAD_REQUEST",
-			"error":  "Invalid PostID",
-		})
+		utils.RespondWithError(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -44,25 +52,15 @@ func CreateComment(c *gin.Context) {
 	Comment.UserID = userID
 	Comment.PostID = postIDUint
 
-	err = db.Debug().Create(&Comment).Error
+	comment, err := h.commentService.CreateComment(Comment.Description, Comment.PostID, Comment.UserID)
+	// err = db.Debug().Create(&Comment).Error
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  "BAD_REQUEST",
-			"message": err.Error(),
-		})
+		utils.RespondWithError(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"comment": gin.H{
-			"id":        Comment.ID,
-			"comment":   Comment.Description,
-			"post_id":   Comment.PostID,
-			"createdAt": Comment.CreatedAt,
-			"user":      Comment.UserID,
-		},
-	})
+	utils.RespondWithSuccess(c, http.StatusOK, comment)
 }
 
 func DeleteComment(c *gin.Context) {
@@ -76,10 +74,7 @@ func DeleteComment(c *gin.Context) {
 	commentIDStr := c.Param("id")
 	commentID, err := strconv.ParseUint(commentIDStr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": "BAD_REQUEST",
-			"error":  "Invalid CommentID",
-		})
+		utils.RespondWithError(c, http.StatusBadRequest, err.Error())
 		return
 	}
 

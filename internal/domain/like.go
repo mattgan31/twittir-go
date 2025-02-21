@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type Likes struct {
+type Like struct {
 	gorm.Model
 	UserID    uint  `gorm:"not null" json:"user_id" valid:"required"`
 	PostID    *uint `gorm:"null" json:"post_id"`
@@ -15,7 +15,7 @@ type Likes struct {
 	User      *User
 }
 
-func (l *Likes) BeforeCreate(g *gorm.DB) (err error) {
+func (l *Like) BeforeCreate(g *gorm.DB) (err error) {
 	_, errCreate := govalidator.ValidateStruct(l)
 
 	if errCreate != nil {

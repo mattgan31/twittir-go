@@ -1,13 +1,35 @@
 basePath: /api/
 definitions:
-  handler.ErrorResponse:
+  dto.ErrorResponse:
     properties:
       message:
         type: string
       status:
         type: string
     type: object
-  handler.RegisterSuccess:
+  dto.FormatUsers:
+    properties:
+      ProfilePicture:
+        type: string
+      fullname:
+        type: string
+      id:
+        type: integer
+      username:
+        type: string
+    type: object
+  dto.ProfileResponse:
+    properties:
+      FullName:
+        type: string
+      ProfilePicture:
+        type: string
+      id:
+        type: integer
+      username:
+        type: string
+    type: object
+  dto.RegisterSuccess:
     properties:
       email:
         type: string
@@ -16,12 +38,12 @@ definitions:
       id:
         type: integer
     type: object
-  handler.SignInSuccess:
+  dto.SignInSuccess:
     properties:
       token:
         type: string
     type: object
-  handler.SuccessResponse:
+  dto.SuccessResponse:
     properties:
       data: {}
       status:
@@ -30,7 +52,8 @@ definitions:
 host: localhost:3001
 info:
   contact: {}
-  description: Your API description.
+  description: This is API for Twittir Go (Personal Project) using Golang (gin) and
+    GORM
   title: Twittir Go API
   version: "1.0"
 paths:
@@ -59,15 +82,15 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.SuccessResponse'
+            - $ref: '#/definitions/dto.SuccessResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.SignInSuccess'
+                  $ref: '#/definitions/dto.SignInSuccess'
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Login user
       tags:
       - Auth
@@ -114,16 +137,108 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.SuccessResponse'
+            - $ref: '#/definitions/dto.SuccessResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.RegisterSuccess'
+                  $ref: '#/definitions/dto.RegisterSuccess'
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Register user
+      tags:
+      - Auth
+  /api/search:
+    get:
+      consumes:
+      - application/json
+      description: Search user by username with query parameter
+      parameters:
+      - description: Username to search for
+        in: query
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Users successfully retrieved
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.FormatUsers'
+              type: object
+        "400":
+          description: Invalid request or missing parameters
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Search user by username
+      tags:
+      - Auth
+  /api/users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the user profile details by the specified user ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User profile successfully retrieved
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ProfileResponse'
+              type: object
+        "400":
+          description: Invalid request or missing parameters
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Show user by ID
+      tags:
+      - Auth
+  /api/users/profile:
+    get:
+      consumes:
+      - application/json
+      description: Show user profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ProfileResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Show Profile user
       tags:
       - Auth
 swagger: "2.0"

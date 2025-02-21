@@ -11,8 +11,11 @@ type PostService interface {
 	GetAllPosts() ([]dto.FormatPost, error)
 	GetPostByID(id int) (*dto.FormatPost, error)
 	GetPostByUserID(userID uint) ([]dto.FormatPost, error)
+	GetPostByFollowingUser(userID uint) ([]dto.FormatPost, error)
 
 	CreatePost(post string, userID uint) (*domain.Post, error)
+
+	DeletePost(id int) error
 }
 
 type postService struct {
@@ -55,6 +58,15 @@ func (s *postService) GetPostByUserID(userID uint) ([]dto.FormatPost, error) {
 	return dto.NewFormatPosts(posts), nil
 }
 
+func (s *postService) GetPostByFollowingUser(userID uint) ([]dto.FormatPost, error) {
+	posts, err := s.postRepo.FindPostByFollowingUser(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return dto.NewFormatPosts(posts), nil
+}
+
 // CREATE POST
 func (s *postService) CreatePost(post string, userID uint) (*domain.Post, error) {
 	// Create a new post
@@ -65,4 +77,12 @@ func (s *postService) CreatePost(post string, userID uint) (*domain.Post, error)
 	}
 
 	return createdPost, nil
+}
+
+func (s *postService) DeletePost(id int) error {
+	err := s.postRepo.DeletePost(id)
+	if err != nil {
+		return err
+	}
+	return nil
 }

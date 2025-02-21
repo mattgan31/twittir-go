@@ -38,8 +38,8 @@ func NewUserHandler(userService services.UserService) *UserHandler {
 // @Param username body string true "Username"
 // @Param password body string true "Password"
 // @Param password_verify body string true "Password verification"
-// @Success 200 {object} SuccessResponse{data=RegisterSuccess}
-// @Failure 400 {object} ErrorResponse
+// @Success 200 {object} dto.SuccessResponse{data=dto.RegisterSuccess}
+// @Failure 400 {object} dto.ErrorResponse
 // @Router /api/register [post]
 func (h *UserHandler) Register(c *gin.Context) {
 	var registerRequest dto.RegisterRequest
@@ -75,8 +75,8 @@ func (h *UserHandler) Register(c *gin.Context) {
 // @Produce json
 // @Param username body string true "Username"
 // @Param password body string true "Password"
-// @Success 200 {object} SuccessResponse{data=SignInSuccess}
-// @Failure 400 {object} ErrorResponse
+// @Success 200 {object} dto.SuccessResponse{data=dto.SignInSuccess}
+// @Failure 400 {object} dto.ErrorResponse
 // @Router /api/login [post]
 func (h *UserHandler) Login(c *gin.Context) {
 	var loginRequest dto.LoginRequest
@@ -101,6 +101,20 @@ func (h *UserHandler) Login(c *gin.Context) {
 	})
 }
 
+// UpdateProfile godoc
+// @Summary Search user by username
+// @Description Search user by username with query parameter
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param fullname body string true "Fullname"
+// @Param bio body string true "Bio"
+// @Param username body string true "Username"
+// @Success 200 {object} dto.SuccessResponse{data=dto.FormatUsers} "Users successfully retrieved"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request or missing parameters"
+// @Failure 404 {object} dto.ErrorResponse "User not found"
+// @Router /api/user/update [get]
 func (h *UserHandler) UpdateProfile(c *gin.Context) {
 
 	userID, err := h.extractUserID(c)
@@ -131,6 +145,16 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 	})
 }
 
+// ShowProfile godoc
+// @Summary Show Profile user
+// @Description Show user profile
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} dto.SuccessResponse{data=dto.ProfileResponse}
+// @Failure 400 {object} dto.ErrorResponse
+// @Router /api/users/profile [get]
 func (h *UserHandler) ShowProfile(c *gin.Context) {
 
 	userData := c.MustGet("userData").(jwt.MapClaims)
@@ -150,6 +174,18 @@ func (h *UserHandler) ShowProfile(c *gin.Context) {
 	})
 }
 
+// SearchUser godoc
+// @Summary Search user by username
+// @Description Search user by username with query parameter
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param username query string true "Username to search for"
+// @Success 200 {object} dto.SuccessResponse{data=dto.FormatUsers} "Users successfully retrieved"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request or missing parameters"
+// @Failure 404 {object} dto.ErrorResponse "User not found"
+// @Router /api/search [get]
 func (h *UserHandler) SearchUser(c *gin.Context) {
 
 	usernameParam := c.DefaultQuery("username", "")
@@ -172,6 +208,17 @@ func (h *UserHandler) SearchUser(c *gin.Context) {
 	utils.RespondWithSuccess(c, http.StatusOK, formattedUsers)
 }
 
+// GetUserByID godoc
+// @Summary Show user by ID
+// @Description Retrieve the user profile details by the specified user ID
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} dto.SuccessResponse{data=dto.ProfileResponse} "User profile successfully retrieved"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request or missing parameters"
+// @Failure 404 {object} dto.ErrorResponse "User not found"
+// @Router /api/users/{id} [get]
 func (h *UserHandler) GetUserByID(c *gin.Context) {
 
 	userIDStr := c.Param("id")

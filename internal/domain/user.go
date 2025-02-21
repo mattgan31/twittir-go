@@ -17,7 +17,7 @@ type User struct {
 	ProfilePicture string         `gorm:"type:varchar(255);default:''" json:"ProfilePicture"`
 	Post           []Post         `gorm:"foreignKey:UserID"`
 	Comment        []Comment      `gorm:"foreignKey:UserID"`
-	Likes          []Likes        `gorm:"foreignKey:UserID"`
+	Likes          []Like         `gorm:"foreignKey:UserID"`
 	Followers      []Relationship `gorm:"foreignKey:FollowerID"`
 	Following      []Relationship `gorm:"foreignKey:FollowingID"`
 }

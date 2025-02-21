@@ -17,19 +17,6 @@ type FormatPost struct {
 	Comment      []FormatComment `json:"comments"`
 }
 
-type FormatComment struct {
-	ID          uint         `json:"id"`
-	Description string       `json:"description"`
-	CreatedAt   time.Time    `json:"createdAt"`
-	User        FormatUsers  `json:"user"`
-	Likes       []FormatLike `json:"likes"`
-}
-
-type FormatLike struct {
-	ID   uint        `json:"id"`
-	User FormatUsers `json:"user"`
-}
-
 type FormatCreatedPost struct {
 	ID        uint   `json:"id"`
 	Post      string `json:"post"`
@@ -37,18 +24,24 @@ type FormatCreatedPost struct {
 }
 
 func NewFormatPost(post domain.Post) FormatPost {
+	var formattedUser FormatUsers
 
-	return FormatPost{
-		ID:   post.ID,
-		Post: post.Post,
-		User: FormatUsers{
+	if post.User != nil {
+		formattedUser = FormatUsers{
 			ID:       post.User.ID,
 			Username: post.User.Username,
 			FullName: post.User.FullName,
-		},
-		CreatedAt:    post.CreatedAt,
-		LikeCount:    len(post.Likes),
-		CommentCount: len(post.Comment),
+		}
+	}
+
+	return FormatPost{
+		ID:        post.ID,
+		Post:      post.Post,
+		User:      formattedUser,
+		LikeCount: len(post.Likes),
+		CreatedAt: post.CreatedAt,
+		Like:      NewFormatLikes(post.Likes),
+		Comment:   NewFormatComments(post.Comment),
 	}
 }
 

@@ -50,6 +50,14 @@ func StartServer() *gin.Engine {
 	postService := services.NewPostService(postRepo)
 	postHandler := handler.NewPostHandler(postService, userHandler)
 
+	commentRepo := repositories.NewCommentRepository(db)
+	commentService := services.NewCommentService(commentRepo)
+	commentHandler := handler.NewCommentHandler(commentService, userHandler)
+
+	likeRepo := repositories.NewLikeRepository(db)
+	likeService := services.NewLikeService(likeRepo)
+	likeHandler := handler.NewLikeHandler(likeService, userHandler)
+
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	apiRouter := router.Group("/api")
@@ -62,22 +70,23 @@ func StartServer() *gin.Engine {
 		apiRouter.GET("/users/:id", middleware.Authentication(), userHandler.GetUserByID)
 		apiRouter.GET("/search", middleware.Authentication(), userHandler.SearchUser)
 
-		// // Post
+		// Post
 		apiRouter.POST("/posts", middleware.Authentication(), postHandler.CreatePost)
 		apiRouter.GET("/posts", middleware.Authentication(), postHandler.GetPosts)
+		apiRouter.GET("/posts/followed", middleware.Authentication(), postHandler.GetPostByFollowingUser)
 		apiRouter.GET("/posts/:id", middleware.Authentication(), postHandler.GetPostByID)
 		apiRouter.GET("/posts/user/:id", middleware.Authentication(), postHandler.GetPostByUserID)
-		// apiRouter.DELETE("/posts/:id", middleware.Authentication(), controllers.DeletePost)
+		apiRouter.DELETE("/posts/:id", middleware.Authentication(), postHandler.DeletePost)
 
-		// // Comment post
-		// apiRouter.POST("/posts/:id/comment", middleware.Authentication(), controllers.CreateComment)
+		// Comment post
+		apiRouter.POST("/posts/:id/comment", middleware.Authentication(), commentHandler.CreateComment)
 		// apiRouter.DELETE("/comments/:id", middleware.Authentication(), controllers.DeleteComment)
 
-		// // Like Post
-		// apiRouter.POST("/posts/:id/like", middleware.Authentication(), controllers.CreateLikePost)
-		// apiRouter.POST("/comments/:id/like", middleware.Authentication(), controllers.CreateLikeComment)
+		// Like Post
+		apiRouter.POST("/posts/:id/like", middleware.Authentication(), likeHandler.ToggleLikePost)
+		apiRouter.POST("/comments/:id/like", middleware.Authentication(), likeHandler.ToggleLikeComment)
 
-		// // Relationship / Follow
+		// Relationship / Follow
 		// apiRouter.POST("/users/:id/follow", middleware.Authentication(), controllers.FollowUser)
 	}
 

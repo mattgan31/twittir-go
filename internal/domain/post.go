@@ -11,7 +11,7 @@ type Post struct {
 	gorm.Model
 	Post    string    `gorm:"not null" json:"post" valid:"required~Post is required"`
 	UserID  uint      `gorm:"not null" json:"user_id" valid:"required"`
-	Likes   []Likes   `gorm:"foreignKey:PostID"`
+	Likes   []Like    `gorm:"foreignKey:PostID"`
 	Comment []Comment `gorm:"foreignKey:PostID"`
 	User    *User
 }

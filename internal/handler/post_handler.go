@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"twittir-go/internal/database"
 	"twittir-go/internal/domain"
 	"twittir-go/internal/dto"
 	"twittir-go/internal/helpers"
@@ -13,7 +12,6 @@ import (
 	"twittir-go/internal/utils"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
 )
 
 type PostHandler struct {
@@ -23,67 +21,6 @@ type PostHandler struct {
 
 func NewPostHandler(postService services.PostService, userHandler *UserHandler) *PostHandler {
 	return &PostHandler{postService, userHandler}
-}
-
-// Private Function
-func formatUser(user *domain.User) dto.FormatUsers {
-	return dto.FormatUsers{
-		ID:       user.ID,
-		Username: user.Username,
-		FullName: user.FullName,
-	}
-}
-
-func formatLikes(likes []domain.Likes) []dto.FormatLike {
-	formattedLikes := make([]dto.FormatLike, len(likes))
-	for i, like := range likes {
-		formattedLikes[i] = dto.FormatLike{
-			ID:   like.ID,
-			User: formatUser(like.User),
-		}
-	}
-	return formattedLikes
-}
-
-func formatComments(comments []domain.Comment) []dto.FormatComment {
-	formattedComments := make([]dto.FormatComment, len(comments))
-	for i, comment := range comments {
-		formattedComments[i] = dto.FormatComment{
-			ID:          comment.ID,
-			Description: comment.Description,
-			CreatedAt:   comment.CreatedAt,
-			User:        formatUser(comment.User),
-			Likes:       formatLikes(comment.Likes),
-		}
-	}
-	return formattedComments
-}
-
-func formatPosts(posts []domain.Post) []dto.FormatPost {
-	formattedPosts := make([]dto.FormatPost, len(posts))
-	for i, post := range posts {
-		formattedPosts[i] = dto.FormatPost{
-			ID:        post.ID,
-			Post:      post.Post,
-			CreatedAt: post.CreatedAt,
-			User:      formatUser(post.User),
-			Like:      formatLikes(post.Likes),
-			Comment:   formatComments(post.Comment),
-		}
-	}
-	return formattedPosts
-}
-
-func formatOnePost(post domain.Post) dto.FormatPost {
-	formattedPost := dto.FormatPost{
-		ID:        post.ID,
-		Post:      post.Post,
-		CreatedAt: post.CreatedAt,
-		User:      formatUser(post.User),
-		Like:      formatLikes(post.Likes),
-		Comment:   formatComments(post.Comment),
-	}
-	return formattedPost
 }
 
 // Function
@@ -138,6 +75,17 @@ func (h *PostHandler) GetPosts(c *gin.Context) {
 	utils.RespondWithSuccess(c, http.StatusOK, posts)
 }
 
+// GetPostByID godoc
+// @Summary Show post by ID
+// @Description Retrieve the post details by the specified post ID
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} dto.SuccessResponse{data=dto.ProfileResponse} "Post successfully retrieved"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request or missing parameters"
+// @Failure 404 {object} dto.ErrorResponse "Post not found"
+// @Router /api/posts/{id} [get]
 func (h *PostHandler) GetPostByID(c *gin.Context) {
 
 	postIDStr := c.Param("id")
@@ -161,6 +109,17 @@ func (h *PostHandler) GetPostByID(c *gin.Context) {
 	utils.RespondWithSuccess(c, http.StatusOK, post)
 }
 
+// GetPostByUserID godoc
+// @Summary Show post by ID
+// @Description Retrieve the post details by the specified post ID
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} dto.SuccessResponse{data=dto.ProfileResponse} "Post successfully retrieved"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request or missing parameters"
+// @Failure 404 {object} dto.ErrorResponse "Post not found"
+// @Router /api/posts/{id} [get]
 func (h *PostHandler) GetPostByUserID(c *gin.Context) {
 
 	userIDStr := c.Param("id")
@@ -184,13 +143,35 @@ func (h *PostHandler) GetPostByUserID(c *gin.Context) {
 	utils.RespondWithSuccess(c, http.StatusOK, posts)
 }
 
-func DeletePost(c *gin.Context) {
-	db := database.GetDB()
+func (h *PostHandler) GetPostByFollowingUser(c *gin.Context) {
 
-	var post domain.Post
+	userID, err := h.userHandler.extractUserID(c)
+	if err != nil {
+		utils.RespondWithError(c, http.StatusUnauthorized, "Invalid token")
+		return
+	}
 
-	userData := c.MustGet("userData").(jwt.MapClaims)
-	userID := uint(userData["id"].(float64))
+	userIDUint := uint(userID)
+
+	var posts []dto.FormatPost
+
+	posts, err = h.postService.GetPostByFollowingUser(userIDUint)
+
+	if err != nil {
+		utils.RespondWithError(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	utils.RespondWithSuccess(c, http.StatusOK, posts)
+}
+
+func (h *PostHandler) DeletePost(c *gin.Context) {
+
+	userID, err := h.userHandler.extractUserID(c)
+	if err != nil {
+		utils.RespondWithError(c, http.StatusUnauthorized, "Invalid token")
+		return
+	}
 
 	postIDStr := c.Param("id")
 	postID, err := strconv.ParseUint(postIDStr, 10, 64)
@@ -199,24 +180,22 @@ func DeletePost(c *gin.Context) {
 		return
 	}
 
-	postIDUint := uint(postID)
-
-	if err := db.Debug().Where("id=?", postIDUint).
-		Where("user_id=?", userID).
-		Take(&post).
-		Error; err != nil {
+	post, err := h.postService.GetPostByID(int(postID))
+	if err != nil {
 		utils.RespondWithError(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	if err := db.Debug().
-		Delete(&post).
-		Error; err != nil {
-		utils.RespondWithError(c, http.StatusBadRequest, err.Error())
+	if post.User.ID != userID {
+		utils.RespondWithError(c, http.StatusUnauthorized, "You are not authorized to delete this post")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": fmt.Sprintf("Post with id %d deleted successfully", postIDUint),
-	})
+	deletePost := h.postService.DeletePost(int(post.ID))
+	if deletePost != nil {
+		utils.RespondWithError(c, http.StatusBadRequest, deletePost.Error())
+		return
+	}
+
+	utils.RespondWithSuccess(c, http.StatusOK, fmt.Sprintf("Post with id %d deleted successfully", postID))
 }

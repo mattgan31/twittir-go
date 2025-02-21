@@ -33,7 +33,7 @@ func GetDB() *gorm.DB {
 }
 
 func Migrate() {
-	db.AutoMigrate(&domain.User{}, &domain.Post{}, &domain.Comment{}, &domain.Likes{}, &domain.Relationship{})
+	db.AutoMigrate(&domain.User{}, &domain.Post{}, &domain.Comment{}, &domain.Like{}, &domain.Relationship{})
 }
 
 func ConnectDB() error {

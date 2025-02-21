@@ -54,13 +54,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.SuccessResponse"
+                                    "$ref": "#/definitions/dto.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.SignInSuccess"
+                                            "$ref": "#/definitions/dto.SignInSuccess"
                                         }
                                     }
                                 }
@@ -70,7 +70,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -142,13 +142,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.SuccessResponse"
+                                    "$ref": "#/definitions/dto.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.RegisterSuccess"
+                                            "$ref": "#/definitions/dto.RegisterSuccess"
                                         }
                                     }
                                 }
@@ -158,7 +158,166 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/search": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Search user by username with query parameter",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Search user by username",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Username to search for",
+                        "name": "username",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Users successfully retrieved",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.FormatUsers"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request or missing parameters",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/profile": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Show user profile",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Show Profile user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.ProfileResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve the user profile details by the specified user ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Show user by ID",
+                "responses": {
+                    "200": {
+                        "description": "User profile successfully retrieved",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.ProfileResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request or missing parameters",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     }
                 }
@@ -166,7 +325,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "handler.ErrorResponse": {
+        "dto.ErrorResponse": {
             "type": "object",
             "properties": {
                 "message": {
@@ -177,7 +336,41 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.RegisterSuccess": {
+        "dto.FormatUsers": {
+            "type": "object",
+            "properties": {
+                "ProfilePicture": {
+                    "type": "string"
+                },
+                "fullname": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ProfileResponse": {
+            "type": "object",
+            "properties": {
+                "FullName": {
+                    "type": "string"
+                },
+                "ProfilePicture": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RegisterSuccess": {
             "type": "object",
             "properties": {
                 "email": {
@@ -191,7 +384,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.SignInSuccess": {
+        "dto.SignInSuccess": {
             "type": "object",
             "properties": {
                 "token": {
@@ -199,7 +392,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.SuccessResponse": {
+        "dto.SuccessResponse": {
             "type": "object",
             "properties": {
                 "data": {},
@@ -218,7 +411,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/api/",
 	Schemes:          []string{},
 	Title:            "Twittir Go API",
-	Description:      "Your API description.",
+	Description:      "This is API for Twittir Go (Personal Project) using Golang (gin) and GORM",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
